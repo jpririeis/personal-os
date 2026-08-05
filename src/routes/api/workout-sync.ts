@@ -1,11 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { createClient } from '@supabase/supabase-js';
-
 export const Route = createFileRoute('/api/workout-sync')({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        // The URL is public so we can hardcode it safely. The Key remains hidden as an environment variable.
         const supabaseUrl = 'https://kmbpmplfuqkhxtiygyro.supabase.co';
         const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -42,5 +38,4 @@ export const Route = createFileRoute('/api/workout-sync')({
       },
     },
   },
-});
 });
