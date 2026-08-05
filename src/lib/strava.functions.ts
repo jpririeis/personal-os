@@ -43,7 +43,7 @@ export const getStravaActivities = createServerFn({ method: "GET" }).handler(
       }
 
       const res = await fetch(
-        "https://www.strava.com/api/v3/athlete/activities?per_page=10",
+        "https://www.strava.com/api/v3/athlete/activities?per_page=100",
         { headers: { Authorization: `Bearer ${auth.access_token}` } },
       );
       if (!res.ok) return { activities: [], error: `Strava API returned ${res.status}` };

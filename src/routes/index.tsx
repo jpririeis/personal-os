@@ -1,11 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { BarChart, SparkAreaChart } from "@tremor/react";
 import { Activity, ArrowRightLeft, Bike, BookOpen, CalendarDays, Check, ChevronRight, CircleUserRound, Dumbbell, Flame, GraduationCap, LayoutDashboard, MoonStar, Play, Radio, Sparkles } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarRail, SidebarTrigger } from "@/components/ui/sidebar";
 import { WorkoutHistory } from "@/components/WorkoutHistory";
+import { getStravaActivities } from "@/lib/strava.functions";
+import { buildWeekStats, formatDuration } from "@/lib/strava-stats";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({ meta: [
@@ -17,13 +22,8 @@ export const Route = createFileRoute("/")({
   ] }), component: Dashboard,
 });
 
-const weeklyMileage = [
-  { day: "Mon", Swim: 1.8, Bike: 22, Run: 4.2 }, { day: "Tue", Swim: 0, Bike: 31, Run: 5.8 },
-  { day: "Wed", Swim: 2.4, Bike: 0, Run: 8.1 }, { day: "Thu", Swim: 1.5, Bike: 26, Run: 0 },
-  { day: "Fri", Swim: 0, Bike: 18, Run: 6.4 }, { day: "Sat", Swim: 3.1, Bike: 44, Run: 9.2 },
-  { day: "Sun", Swim: 1.2, Bike: 12, Run: 3.7 },
-];
-const strengthData = [{ day: "Mon", Minutes: 45 }, { day: "Tue", Minutes: 0 }, { day: "Wed", Minutes: 62 }, { day: "Thu", Minutes: 35 }, { day: "Fri", Minutes: 52 }, { day: "Sat", Minutes: 20 }, { day: "Sun", Minutes: 0 }];
+const emptyWeek = { mileage: [], strength: [], totalMiles: 0, strengthMinutes: 0, strengthSessions: 0 };
+
 const followerData = [12040,12082,12110,12104,12168,12210,12256,12242,12310,12348,12422,12408,12496,12532,12588,12640,12618,12704,12790,12842,12828,12920,12984,13052,13120,13104,13202,13288,13340,13428].map((Followers, i) => ({ day: i + 1, Followers }));
 const nav = [{ label: "Today (Briefing)", icon: LayoutDashboard }, { label: "Ironman HQ", icon: Activity }, { label: "Creator Studio", icon: Radio }, { label: "University", icon: GraduationCap }];
 const initialHabits = [
@@ -42,6 +42,12 @@ function Dashboard() {
   const [habits, setHabits] = useState(initialHabits);
   const [selectedEvent, setSelectedEvent] = useState(0);
   const toggleHabit = (id: number) => setHabits((current) => current.map((habit) => habit.id === id ? { ...habit, done: !habit.done } : habit));
+  const fetchActivities = useServerFn(getStravaActivities);
+  const { data } = useQuery({ queryKey: ["strava-activities"], queryFn: () => fetchActivities() });
+  const stats = useMemo(() => data?.activities ? buildWeekStats(data.activities) : emptyWeek, [data]);
+  const weeklyMileage = stats.mileage;
+  const strengthData = stats.strength;
+
   return <div className="dark">
     <SidebarProvider>
       <Sidebar collapsible="icon" className="border-sidebar-border bg-sidebar">
@@ -54,8 +60,8 @@ function Dashboard() {
         <main className="mx-auto w-full max-w-[1580px] space-y-4 p-4 lg:p-7">
           <section className="briefing-card relative overflow-hidden rounded-lg border border-border p-5 lg:p-7"><div className="relative z-10 flex flex-col justify-between gap-7 lg:flex-row lg:items-end"><div className="max-w-3xl"><div className="mb-5 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-primary"><Sparkles className="size-3.5" /> Daily intelligence</div><h1 className="font-display text-2xl font-medium leading-tight text-foreground md:text-3xl">Your engine is ready. Protect the quality.</h1><p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">Sleep and HRV are trending above baseline. Hit the swim with intent, keep the strength work controlled, and reserve enough attention for your 9:00 creative block.</p></div><div className="grid grid-cols-3 gap-6 border-t border-border pt-5 lg:min-w-[330px] lg:border-l lg:border-t-0 lg:pl-7 lg:pt-0">{[["Readiness","87","+4"],["Sleep","8h 12","94%"],["Load","Optimal","0.82"]].map(([label,value,delta]) => <div key={label}><p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">{label}</p><p className="mt-2 font-display text-lg font-semibold text-foreground">{value}</p><p className="mt-1 text-[10px] text-success">{delta}</p></div>)}</div></div></section>
           <section className="grid gap-4 xl:grid-cols-[1.25fr_1fr_.8fr]">
-            <MetricCard eyebrow="Endurance volume" title="64.2 mi" delta="12% vs last week" icon={<Bike className="size-4" />}><div className="mb-2 flex gap-4 text-[10px] text-muted-foreground">{[["bg-swim","Swim"],["bg-bike","Bike"],["bg-run","Run"]].map(([color,label]) => <span key={label} className="flex items-center gap-1.5"><i className={`size-1.5 rounded-full ${color}`} />{label}</span>)}</div><BarChart className="h-44" data={weeklyMileage} index="day" categories={["Swim", "Bike", "Run"]} colors={["cyan", "teal", "lime"]} stack showLegend={false} showYAxis={false} showGridLines={false} /></MetricCard>
-            <MetricCard eyebrow="Strength training" title="3h 34m" delta="4 sessions" icon={<Dumbbell className="size-4" />}><BarChart className="h-[12.25rem]" data={strengthData} index="day" categories={["Minutes"]} colors={["violet"]} showLegend={false} showYAxis={false} showGridLines={false} /></MetricCard>
+            <MetricCard eyebrow="Endurance volume" title={`${stats.totalMiles.toFixed(1)} mi`} delta="This week" icon={<Bike className="size-4" />}><div className="mb-2 flex gap-4 text-[10px] text-muted-foreground">{[["bg-swim","Swim"],["bg-bike","Bike"],["bg-run","Run"]].map(([color,label]) => <span key={label} className="flex items-center gap-1.5"><i className={`size-1.5 rounded-full ${color}`} />{label}</span>)}</div><BarChart className="h-44" data={weeklyMileage} index="day" categories={["Swim", "Bike", "Run"]} colors={["cyan", "teal", "lime"]} stack showLegend={false} showYAxis={false} showGridLines={false} /></MetricCard>
+            <MetricCard eyebrow="Strength training" title={formatDuration(stats.strengthMinutes)} delta={`${stats.strengthSessions} sessions`} icon={<Dumbbell className="size-4" />}><BarChart className="h-[12.25rem]" data={strengthData} index="day" categories={["Minutes"]} colors={["violet"]} showLegend={false} showYAxis={false} showGridLines={false} /></MetricCard>
             <MetricCard eyebrow="Audience" title="13,428" delta="+1,388 this month" icon={<Radio className="size-4" />}><div className="flex h-[12.25rem] flex-col justify-end"><SparkAreaChart className="h-28" data={followerData} index="day" categories={["Followers"]} colors={["amber"]} /><div className="mt-3 flex items-center justify-between text-[10px] text-muted-foreground"><span>30 days ago</span><span className="text-amber">+11.5%</span><span>Today</span></div></div></MetricCard>
           </section>
           <section className="grid gap-4 xl:grid-cols-[.9fr_1.1fr]">
