@@ -1,5 +1,7 @@
 @import "tailwindcss" source(none);
 @source "../src";
+@source inline("{fill,stroke,bg,text}-{cyan,teal,lime,violet,amber}-500");
+
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
