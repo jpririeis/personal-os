@@ -76,7 +76,8 @@ function Dashboard() {
             <div className="panel min-h-[390px] p-5 lg:p-6"><div className="flex items-center justify-between"><div><p className="section-label">Time architecture</p><h2 className="mt-2 font-display text-lg font-medium">Today’s schedule</h2></div><CalendarDays className="size-4 text-muted-foreground" /></div><div className="mt-6 space-y-1">{schedule.map((event, index) => <Button key={event.time} variant="ghost" onClick={() => setSelectedEvent(index)} className={`group grid h-auto w-full grid-cols-[3.3rem_1.25rem_1fr_auto] items-center gap-3 rounded-md px-2 py-2.5 text-left font-normal ${selectedEvent === index ? "bg-secondary" : ""}`}><span className="font-mono text-[10px] text-muted-foreground">{event.time}</span><span className={`relative grid size-5 place-items-center rounded-full border bg-background timeline-${event.tone}`}><event.icon className="size-2.5" />{index < schedule.length - 1 && <i className="absolute top-5 h-8 w-px bg-border" />}</span><span className="min-w-0"><span className="block truncate text-sm text-foreground">{event.title}</span><span className="mt-0.5 block truncate text-[10px] text-muted-foreground">{event.meta}</span></span><ChevronRight className={`size-4 transition-transform ${selectedEvent === index ? "translate-x-0 text-foreground" : "-translate-x-1 text-muted-foreground opacity-0 group-hover:translate-x-0 group-hover:opacity-100"}`} /></Button>)}</div></div>
           </section>
           <section><WorkoutHistory /></section>
-        </main>
+        </div>}</main>
+
       </SidebarInset>
     </SidebarProvider>
   </div>;
