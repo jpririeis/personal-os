@@ -30,6 +30,7 @@ export function buildWeekStats(activities: StravaActivity[], now = new Date()) {
   const weekStart = startOfWeek(now);
   const mileage: WeekRow[] = DAYS.map((day) => ({ day, Swim: 0, Bike: 0, Run: 0 }));
   const strength: StrengthRow[] = DAYS.map((day) => ({ day, Minutes: 0 }));
+  const totals = { Swim: 0, Bike: 0, Run: 0 };
   let totalMiles = 0;
   let strengthMinutes = 0;
   let strengthSessions = 0;
@@ -48,6 +49,7 @@ export function buildWeekStats(activities: StravaActivity[], now = new Date()) {
     } else if (kind) {
       const miles = activity.distance_miles ?? 0;
       mileage[i]![kind] += Number(miles.toFixed(2));
+      totals[kind] += miles;
       totalMiles += miles;
     }
   }
@@ -55,11 +57,58 @@ export function buildWeekStats(activities: StravaActivity[], now = new Date()) {
   return {
     mileage,
     strength,
+    totals,
     totalMiles,
     strengthMinutes,
     strengthSessions,
   };
 }
+
+export type MonthRow = { label: string; Swim: number; Bike: number; Run: number };
+
+export function buildMonthStats(activities: StravaActivity[], now = new Date()) {
+  const months: MonthRow[] = [];
+  const index = new Map<string, MonthRow>();
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const key = `${d.getFullYear()}-${d.getMonth()}`;
+    const row: MonthRow = {
+      label: d.toLocaleDateString(undefined, { month: "short" }),
+      Swim: 0,
+      Bike: 0,
+      Run: 0,
+    };
+    months.push(row);
+    index.set(key, row);
+  }
+
+  let strengthMinutes = 0;
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  for (const activity of activities) {
+    if (!activity.date) continue;
+    const date = new Date(activity.date);
+    if (Number.isNaN(date.getTime())) continue;
+    const kind = discipline(activity.type);
+    if (kind === "Strength") {
+      if (date >= monthStart) strengthMinutes += activity.duration_min ?? 0;
+      continue;
+    }
+    if (!kind) continue;
+    const row = index.get(`${date.getFullYear()}-${date.getMonth()}`);
+    if (!row) continue;
+    row[kind] = Number((row[kind] + (activity.distance_miles ?? 0)).toFixed(2));
+  }
+
+  const current = months[months.length - 1]!;
+  return {
+    months,
+    strengthMinutes,
+    monthTotals: { Swim: current.Swim, Bike: current.Bike, Run: current.Run },
+    monthTotalMiles: current.Swim + current.Bike + current.Run,
+  };
+}
+
 
 export function formatDuration(minutes: number) {
   const h = Math.floor(minutes / 60);
