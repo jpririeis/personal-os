@@ -15,7 +15,9 @@ export const Route = createFileRoute('/api/workout-sync')({
           const body = await request.json();
           const { type, distance, activeCalories, duration, hrv, avgHr } = body;
 
-          // Use native fetch to bypass bundler import issues completely
+          // Helper function to safely handle blank Apple Watch data
+          const parseNumeric = (val: any) => (val === "" || val === undefined) ? null : Number(val);
+
           const res = await fetch(`${supabaseUrl}/rest/v1/fitness_logs`, {
             method: 'POST',
             headers: {
@@ -26,11 +28,11 @@ export const Route = createFileRoute('/api/workout-sync')({
             },
             body: JSON.stringify({
               type: type,
-              distance: distance,
-              active_calories: activeCalories,
-              duration: duration,
-              hrv: hrv,
-              avg_hr: avgHr
+              distance: parseNumeric(distance),
+              active_calories: parseNumeric(activeCalories),
+              duration: parseNumeric(duration),
+              hrv: parseNumeric(hrv),
+              avg_hr: parseNumeric(avgHr)
             })
           });
 
