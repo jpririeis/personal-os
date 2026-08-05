@@ -5,22 +5,20 @@ export const Route = createFileRoute('/api/workout-sync')({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        // Use Service Role Key to bypass Row Level Security for automated webhooks
-        const supabaseUrl = process.env.VITE_SUPABASE_URL;
+        // The URL is public so we can hardcode it safely. The Key remains hidden as an environment variable.
+        const supabaseUrl = 'https://kmbpmplfuqkhxtiygyro.supabase.co';
         const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-        if (!supabaseUrl || !supabaseKey) {
-          return Response.json({ error: 'Missing database environment variables' }, { status: 500 });
+        if (!supabaseKey) {
+          return Response.json({ error: 'Missing database secret key' }, { status: 500 });
         }
 
         const supabase = createClient(supabaseUrl, supabaseKey);
 
         try {
-          // Parse the JSON body sent from Apple Shortcuts
           const body = await request.json();
           const { type, distance, activeCalories, duration, hrv, avgHr } = body;
 
-          // Insert into Supabase (Change 'fitness_logs' if your table is named differently)
           const { error } = await supabase
             .from('fitness_logs') 
             .insert([
@@ -44,4 +42,5 @@ export const Route = createFileRoute('/api/workout-sync')({
       },
     },
   },
+});
 });
