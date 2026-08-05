@@ -5,7 +5,7 @@ export const Route = createFileRoute('/api/workout-sync')({
     handlers: {
       POST: async ({ request }) => {
         const supabaseUrl = 'https://kmbpmplfuqkhxtiygyro.supabase.co';
-        const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+        const supabaseKey = process.env['SUPABASE_SERVICE_ROLE_KEY'];
 
         if (!supabaseKey) {
           return Response.json({ error: 'Missing database secret key' }, { status: 500 });
