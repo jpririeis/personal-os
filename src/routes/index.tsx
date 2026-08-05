@@ -1,15 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { BarChart, SparkAreaChart } from "@tremor/react";
+import { BarChart, LineChart, SparkAreaChart } from "@tremor/react";
 import { Activity, ArrowRightLeft, Bike, BookOpen, CalendarDays, Check, ChevronRight, CircleUserRound, Dumbbell, Flame, GraduationCap, LayoutDashboard, MoonStar, Play, Radio, Sparkles } from "lucide-react";
 import { useMemo, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarRail, SidebarTrigger } from "@/components/ui/sidebar";
 import { WorkoutHistory } from "@/components/WorkoutHistory";
+import { IronmanHQ } from "@/components/IronmanHQ";
 import { getStravaActivities } from "@/lib/strava.functions";
-import { buildWeekStats, formatDuration } from "@/lib/strava-stats";
+import { buildMonthStats, buildWeekStats, formatDuration } from "@/lib/strava-stats";
+
 
 
 export const Route = createFileRoute("/")({
