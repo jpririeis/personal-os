@@ -24,7 +24,9 @@ export const Route = createFileRoute("/")({
   ] }), component: Dashboard,
 });
 
-const emptyWeek = { mileage: [], strength: [], totalMiles: 0, strengthMinutes: 0, strengthSessions: 0 };
+const emptyWeek = { mileage: [], strength: [], totals: { Swim: 0, Bike: 0, Run: 0 }, totalMiles: 0, strengthMinutes: 0, strengthSessions: 0 };
+const emptyMonth = { months: [], monthTotals: { Swim: 0, Bike: 0, Run: 0 }, monthTotalMiles: 0, strengthMinutes: 0 };
+
 
 const followerData = [12040,12082,12110,12104,12168,12210,12256,12242,12310,12348,12422,12408,12496,12532,12588,12640,12618,12704,12790,12842,12828,12920,12984,13052,13120,13104,13202,13288,13340,13428].map((Followers, i) => ({ day: i + 1, Followers }));
 const nav = [{ label: "Today (Briefing)", icon: LayoutDashboard }, { label: "Ironman HQ", icon: Activity }, { label: "Creator Studio", icon: Radio }, { label: "University", icon: GraduationCap }];
