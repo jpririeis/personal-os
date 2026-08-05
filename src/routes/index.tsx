@@ -22,13 +22,8 @@ export const Route = createFileRoute("/")({
   ] }), component: Dashboard,
 });
 
-const weeklyMileage = [
-  { day: "Mon", Swim: 1.8, Bike: 22, Run: 4.2 }, { day: "Tue", Swim: 0, Bike: 31, Run: 5.8 },
-  { day: "Wed", Swim: 2.4, Bike: 0, Run: 8.1 }, { day: "Thu", Swim: 1.5, Bike: 26, Run: 0 },
-  { day: "Fri", Swim: 0, Bike: 18, Run: 6.4 }, { day: "Sat", Swim: 3.1, Bike: 44, Run: 9.2 },
-  { day: "Sun", Swim: 1.2, Bike: 12, Run: 3.7 },
-];
-const strengthData = [{ day: "Mon", Minutes: 45 }, { day: "Tue", Minutes: 0 }, { day: "Wed", Minutes: 62 }, { day: "Thu", Minutes: 35 }, { day: "Fri", Minutes: 52 }, { day: "Sat", Minutes: 20 }, { day: "Sun", Minutes: 0 }];
+const emptyWeek = { mileage: [], strength: [], totalMiles: 0, strengthMinutes: 0, strengthSessions: 0 };
+
 const followerData = [12040,12082,12110,12104,12168,12210,12256,12242,12310,12348,12422,12408,12496,12532,12588,12640,12618,12704,12790,12842,12828,12920,12984,13052,13120,13104,13202,13288,13340,13428].map((Followers, i) => ({ day: i + 1, Followers }));
 const nav = [{ label: "Today (Briefing)", icon: LayoutDashboard }, { label: "Ironman HQ", icon: Activity }, { label: "Creator Studio", icon: Radio }, { label: "University", icon: GraduationCap }];
 const initialHabits = [
