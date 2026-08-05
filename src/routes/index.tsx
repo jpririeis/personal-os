@@ -45,12 +45,15 @@ const schedule = [
 function Dashboard() {
   const [habits, setHabits] = useState(initialHabits);
   const [selectedEvent, setSelectedEvent] = useState(0);
+  const [activeNav, setActiveNav] = useState(0);
   const toggleHabit = (id: number) => setHabits((current) => current.map((habit) => habit.id === id ? { ...habit, done: !habit.done } : habit));
   const fetchActivities = useServerFn(getStravaActivities);
   const { data } = useQuery({ queryKey: ["strava-activities"], queryFn: () => fetchActivities() });
   const stats = useMemo(() => data?.activities ? buildWeekStats(data.activities) : emptyWeek, [data]);
+  const monthly = useMemo(() => data?.activities ? buildMonthStats(data.activities) : emptyMonth, [data]);
   const weeklyMileage = stats.mileage;
   const strengthData = stats.strength;
+
 
   return <div className="dark">
     <SidebarProvider>
