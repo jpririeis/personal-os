@@ -1,16 +1,17 @@
 import { createClient } from '@supabase/supabase-js';
 
 export default async function handler(req, res) {
-  // Only allow POST requests from your Shortcut
+  // Only allow POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
+  // Hardcoding the keys to completely bypass Vercel's environment variable bugs
+  const supabaseUrl = 'https://kmbpmplfuqkhxtiygyro.supabase.co';
+  const supabaseKey = 'sb_publishable_5s3AR_xO14UCI4QMreTvtg_f2UKs4nY';
+
   // Initialize Supabase
-  const supabase = createClient(
-    process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL,
-    process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY
-  );
+  const supabase = createClient(supabaseUrl, supabaseKey);
 
   const { date, sleepHours } = req.body;
 
